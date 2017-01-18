@@ -2,7 +2,7 @@ HostelryManage
 ==============
 
 
-Analysis management about hotel services in the Canary Islands.
+Analysis management about hotel services in Tenerife.
 Final Grade Dissertation at University of La Laguna.
 Developed by José G. Mesa Reyes.
 

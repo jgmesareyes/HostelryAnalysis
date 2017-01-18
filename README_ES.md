@@ -2,7 +2,7 @@ HostelryManage
 ==============
 
 
-Gestor de análisis sobre características hoteleras en Canarias.
+Gestor de análisis sobre características hoteleras en Tenerife.
 Trabajo de Fin de Grado (TFG) en Universidad de La Laguna.
 Desarrollado por José G. Mesa Reyes.
 
@@ -34,7 +34,7 @@ Actualmente solo se trabaja sobre los hoteles en la web www://booking.com/
 
 
 Posteriormente se ha optimizado el programa incluyendo soporte para todas las
-islas, así como sus sectores turísticos si los hay.
+Islas Canarias, así como sus sectores turísticos si los hay.
 
 
 

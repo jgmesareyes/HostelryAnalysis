@@ -1,0 +1,41 @@
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+</br></br>
+<div class="container">
+    {% for sector, sectorData in sectorStats.items(): %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th colspan="3">Sector Statistics</th>
+                    <th colspan="3">{{ sector }}</th>
+                </tr></br>
+            </thead>
+            <tbody>
+            <tr>
+                {% for dataType, data in sectorData.items(): %}
+                    <td colspan="2">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Datatype {{ dataType }}</th>
+                                </tr>
+                                <tr>
+                                    <th>Value</th>
+                                    <th>Concurrency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, percentage in data.items(): %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td>{{ percentage }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table></br></br>
+    {% endfor %}
+</div>

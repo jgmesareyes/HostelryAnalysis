@@ -1,0 +1,45 @@
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+</br></br>
+<div class="container">
+    {% for hotel in hotelList %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Coords</th>
+                    <th>Spoken Languages</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ hotel.name }}</td>
+                    <td>{{ hotel.address }}</td>
+                    <td>{{ hotel.coords }}</td>
+                    <td>{{ hotel.languages }}</td>
+                </tr>
+            </tbody>
+        </table></br>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Hotel Reviews</th>
+                </tr>
+                <tr>
+                    <th>Author</th>
+                    <th>Positive Review</th>
+                    <th>Negative Review</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for review in hotel.reviews %}
+                <tr>
+                    <td>{{ review['name'] }}</td>
+                    <td>{{ review['pos'] }}</td>
+                    <td>{{ review['neg'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>

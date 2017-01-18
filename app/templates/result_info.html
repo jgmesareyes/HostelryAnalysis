@@ -1,0 +1,24 @@
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+</br></br>
+<div class="container">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Coords</th>
+                <th>Spoken Languages</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for hotel in hotelList %}
+            <tr>
+                <td>{{ hotel.name }}</td>
+                <td>{{ hotel.address }}</td>
+                <td>{{ hotel.coords }}</td>
+                <td>{{ hotel.languages }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

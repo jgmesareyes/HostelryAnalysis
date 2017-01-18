@@ -1,0 +1,25 @@
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+</br></br>
+<div class="container">
+    {% for hotel in hotelList %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2">{{ hotel.name }}</th>
+                </tr>
+                <tr>
+                    <th>Facility</th>
+                    <th>Califications</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for facility, califications in hotel.valuableInfo.items() %}
+                    <tr>
+                        <td>{{ facility }}</td>
+                        <td>{{ califications }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>

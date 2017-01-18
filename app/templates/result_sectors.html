@@ -1,0 +1,46 @@
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+</br></br>
+<div class="container">
+    {% for hotel in hotelList: %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>{{ hotel.name }}</th>
+                    <th>Unique Hotel Services in {{ hotel.region }}</th>
+                </tr>
+                <tr>
+                    <th>Facility</th>
+                    <th>Califications</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for facility, califications in hotel.uniqueSectorInfo.items(): %}
+                    <tr>
+                        <td>{{ facility }}</td>
+                        <td>{{ califications }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table></br>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>{{ hotel.name }}</th>
+                    <th>Common Hotel Services in {{ hotel.region }}</th>
+                </tr>
+                <tr>
+                    <th>Facility</th>
+                    <th>Califications</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for facility, califications in hotel.commonSectorInfo.items(): %}
+                    <tr>
+                        <td>{{ facility }}</td>
+                        <td>{{ califications }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table></br></br>
+    {% endfor %}
+</div>

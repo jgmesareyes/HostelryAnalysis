@@ -2,68 +2,69 @@ HostelryManage
 ==============
 
 
-Gestor de análisis sobre características hoteleras en Canarias.
-Trabajo de Fin de Grado (TFG) en Universidad de La Laguna.
-Desarrollado por José Gregorio Mesa Reyes.
+Analysis management about hotel services in the Canary Islands.
+Final Grade Dissertation at University of La Laguna.
+Developed by José G. Mesa Reyes.
 
 
 
 Overview
 --------
 
-Aplicación orientada al análisis de las características hoteleras de Tenerife,
-tanto generales como por sectores turísticos, a partir de sus respectivas
-descripciones en la web de servicios hoteleros establecida.
+Application oriented on the analysis of hotel characteristics and services in
+Tenerife, both general and by tourist sectors, from their respective
+descriptions on the selected hotel booking website.
 
-Se lleva a cabo un Análisis del Lenguaje Natural sobre cada una de las
-descripciones a través de la herramienta Freeling, ampliando su funcionalidad a
-través de algoritmos de creación propia, y extrayendo de las mismas las
-características ofrecidas por cada hotel.
+A Natural Language Analysis is carried out on each description using the
+Freeling tool, extending its functionality through own algorithms extracting
+the features offered by each hotel.
 
-Análisis los comentarios de los clientes determinando aquéllas de las que se
-hable de forma positiva y/o de forma negativa.
+Analyze customer comments by determining which customers are leaving positive
+and / or negative reviews.
 
-Desarrollo de características comunes y únicas de forma general en la isla,
-así como de cada sector turístico correspondiente a la misma.
+Development of common and unique characteristics at global in the island, as
+well as for each tourist sector respectively.
 
-Desarrollo de estadísticas de tiempos de ejecución.
+Development of execution time statistics.
 
-Actualmente solo se trabaja sobre los hoteles en la web www://booking.com/
+Bilingual development, carrying out the analysis in both English and Spanish.
+
+Currently only working on hotels at website www://booking.com/
 
 
-Posteriormente se ha optimizado el programa incluyendo soporte para todas las
-islas, así como sus sectores turísticos si los hay.
+Subsequently, the program has been optimized including support for all the
+Canary Islands, as well as their tourist sectors.
 
 
 
 Requirements
 ------------
 
-    - Python 3.5
-    - PostgreSql 9.5
-    - pgAdmin III (if not included with PostgreSQL)
-    - PostGis 2.2 for PostgreSQL
-    - Freeling 4.0
-    - Works on Windows (tested on x86)
+    - Python 3.5
+    - PostgreSql 9.5
+    - pgAdmin III (if not included with PostgreSQL)
+    - PostGis 2.2 for PostgreSQL
+    - Freeling 4.0
+    - Works on Windows (tested on x86)
 
 
 
 Notes
 -----
 
-Los modelos, las bases de datos, datos asociadas y scripts de interacción sobre
-los mismos no han sido incluidos dado que no está alojado en ningún servidor en
-este momento.
+Models, databases, associated data, and interaction scripts have not been
+included due since it is not hosted at the moment.
 
-Se han trabajado e incorporado herramientas de programación para aumentar el
-rendimiento del sistema; utilización del módulo Threading para la distribución
-del análisis en hilos de trabajo paralelos.
+Programming tools have been worked on and incorporated to increase the system
+performance; use of the Threading module for distributing the analysis in
+parallel threads.
 
-El proyecto se basa en la investigación sobre el tratamiento del Lenguaje
-Natural y las diferentes herramientas disponibles, actuando en la extracción de
-los servicios hoteleros a través de sus descripciones.
-A pesar de que dicho análisis e investigación conllevó el grueso de este
-proyecto, tratando NLTK (Natural Language Toolkit), TreeTagger Wrapper,
-Stanford CoreNLP, Ixa Pipes y Freeling, sólo se ha incorporado la funcionalidad
-de ésta última, dada la gran funcionalidad, tiempos de respuesta y calidad de
-resultados en ambos idiomas Español e Inglés.
+This project is strongly based on research of Natural Language treatment and
+the different tools available, which are the point in the extraction of the
+hotel services through their descriptions.
+Despite the fact that this analysis and research carried the bulk of this
+project, dealing with several tools such as NLTK (Natural Language Toolkit),
+TreeTagger Wrapper, Stanford CoreNLP, Ixa Pipes and Freeling, only Freeling
+functionality has been incorporated to this final project, due to its best
+balance in functionality, response times and quality of results in both
+languages English and Spanish.

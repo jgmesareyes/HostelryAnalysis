@@ -40,12 +40,12 @@ Canary Islands, as well as their tourist sectors.
 Requirements
 ------------
 
-    - Python 3.5
-    - PostgreSql 9.5
-    - pgAdmin III (if not included with PostgreSQL)
-    - PostGis 2.2 for PostgreSQL
-    - Freeling 4.0
-    - Works on Windows (tested on x86)
+    - Python 3.5
+    - PostgreSql 9.5
+    - pgAdmin III (if not included with PostgreSQL)
+    - PostGis 2.2 for PostgreSQL
+    - Freeling 4.0
+    - Works on Windows (tested on x86)
 
 
 

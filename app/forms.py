@@ -9,10 +9,13 @@ class DataForm(FlaskForm):
     Recoge los valores necesarios para la búsqueda y análisis de hoteles.
     
     """
-    islandChoices = [('TF', 'Tenerife'), ('LP', 'La Palma'), ('LG', 'La Gomera'),
-                     ('EH', 'El Hierro'), ('GC', 'Gran Canaria'),
+    islandChoices = [('CI', 'All Canary Islands'), ('TF', 'Tenerife'), ('LP', 'La Palma'),
+                     ('LG', 'La Gomera'), ('EH', 'El Hierro'), ('GC', 'Gran Canaria'),
                      ('FV', 'Fuerteventura'), ('LZ', 'Lanzarote')]
     islands = SelectField(u'Islands', choices=islandChoices, validators=[Required()])
     languageChoices = [('SP', 'Español'), ('EN', 'Inglés')]
     languages = SelectField(u'Languages', choices=languageChoices, validators=[Required()])
+    executionChoices = [('MERGE', 'Merge with persisting DB data'),
+                     ('FETCH', 'Fetch only execution results')]
+    executionMode = SelectField(u'Execution Mode', choices=executionChoices, validators=[Required()])
     limit = IntegerField(validators=[Required()])

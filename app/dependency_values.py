@@ -45,7 +45,7 @@ def searchOnlyNounsAdjectives():
     
 
 
-def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
+def searchGroupsGenreLemmasData(globalData, regionData, descriptionDocName):
     """Procesa las características de la descripción de un hotel en Español.
     
     Se extrae la información a partir del archivo de descripción del hotel con
@@ -55,7 +55,7 @@ def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
     solución a los problemas mencionados en la memoria del proyecto.
     
     Parámetros:
-    descriptionsData -- registro global de características de todos los hoteles
+    globalData -- registro global de características de todos los hoteles
     descriptionDocName -- nombre del archivo de dependencias con la descripción
     
     Resultado:
@@ -88,10 +88,10 @@ def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
             elif re.search("VM", line) and verbFlag != -1 and verb == "":
                 verbData = line[line.rfind('(') + 1:line.rfind(')')].split()
                 verb = verbData[1]
-                if verb not in descriptionsData['verb'].keys():
-                    descriptionsData['verb'][verb] = 1
+                if verb not in globalData['verb'].keys():
+                    globalData['verb'][verb] = 1
                 else:
-                    descriptionsData['verb'][verb] = descriptionsData['verb'].get(verb) + 1
+                    globalData['verb'][verb] = globalData['verb'].get(verb) + 1
             elif re.search("grup-nom", line) and nounFlag == -1 and verb != "":
                 nounFlag = deep
             elif (re.search("NC", line) or re.search("TV", line)) and nounFlag != -1 and prepFlag == -1 and newNoun == True:
@@ -135,20 +135,32 @@ def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
                         currentFinalValues = finalValues.get(noun)
                         currentFinalValues += [item for item in complements if (item not in currentFinalValues)]
                         finalValues[noun] = currentFinalValues
-                    if noun not in descriptionsData['noun'].keys():
-                        descriptionsData['noun'][noun] = 1
+                    if noun not in globalData['noun'].keys():
+                        globalData['noun'][noun] = 1
                     else:
-                        descriptionsData['noun'][noun] = descriptionsData['noun'].get(noun) + 1
+                        globalData['noun'][noun] = globalData['noun'].get(noun) + 1
+                    if noun not in regionData['noun'].keys():
+                        regionData['noun'][noun] = 1
+                    else:
+                        regionData['noun'][noun] = regionData['noun'].get(noun) + 1
                     for item in complements:
-                        if item not in descriptionsData['complement'].keys():
-                            descriptionsData['complement'][item] = 1
+                        if item not in globalData['complement'].keys():
+                            globalData['complement'][item] = 1
                         else:
-                            descriptionsData['complement'][item] = descriptionsData['complement'].get(item) + 1
+                            globalData['complement'][item] = globalData['complement'].get(item) + 1
+                        if item not in regionData['complement'].keys():
+                            regionData['complement'][item] = 1
+                        else:
+                            regionData['complement'][item] = regionData['complement'].get(item) + 1
                         bothValues = noun + " " + item
-                        if bothValues not in descriptionsData['global'].keys():
-                            descriptionsData['global'][bothValues] = 1
+                        if bothValues not in globalData['global'].keys():
+                            globalData['global'][bothValues] = 1
                         else:
-                            descriptionsData['global'][bothValues] = descriptionsData['global'].get(bothValues) + 1
+                            globalData['global'][bothValues] = globalData['global'].get(bothValues) + 1
+                        if bothValues not in regionData['global'].keys():
+                            regionData['global'][bothValues] = 1
+                        else:
+                            regionData['global'][bothValues] = regionData['global'].get(bothValues) + 1
                 for nounValue, complementValue in nounValues.items():
                     complementValue = [item for item in complementValue if (item != "")]
                     if nounValue not in finalValues.keys():
@@ -157,20 +169,32 @@ def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
                         currentFinalValues = finalValues.get(nounValue)
                         currentFinalValues += [item for item in complementValue if (item not in currentFinalValues)]
                         finalValues[nounValue] = currentFinalValues
-                    if nounValue not in descriptionsData['noun'].keys():
-                        descriptionsData['noun'][nounValue] = 1
+                    if nounValue not in globalData['noun'].keys():
+                        globalData['noun'][nounValue] = 1
                     else:
-                        descriptionsData['noun'][nounValue] = descriptionsData['noun'].get(nounValue) + 1
+                        globalData['noun'][nounValue] = globalData['noun'].get(nounValue) + 1
+                    if nounValue not in regionData['noun'].keys():
+                        regionData['noun'][nounValue] = 1
+                    else:
+                        regionData['noun'][nounValue] = regionData['noun'].get(nounValue) + 1
                     for item in complementValue:
-                        if item not in descriptionsData['complement'].keys():
-                            descriptionsData['complement'][item] = 1
+                        if item not in globalData['complement'].keys():
+                            globalData['complement'][item] = 1
                         else:
-                            descriptionsData['complement'][item] = descriptionsData['complement'].get(item) + 1
+                            globalData['complement'][item] = globalData['complement'].get(item) + 1
+                        if item not in regionData['complement'].keys():
+                            regionData['complement'][item] = 1
+                        else:
+                            regionData['complement'][item] = regionData['complement'].get(item) + 1
                         bothValues = nounValue + " " + item
-                        if bothValues not in descriptionsData['global'].keys():
-                            descriptionsData['global'][bothValues] = 1
+                        if bothValues not in globalData['global'].keys():
+                            globalData['global'][bothValues] = 1
                         else:
-                            descriptionsData['global'][bothValues] = descriptionsData['global'].get(bothValues) + 1
+                            globalData['global'][bothValues] = globalData['global'].get(bothValues) + 1
+                        if bothValues not in regionData['global'].keys():
+                            regionData['global'][bothValues] = 1
+                        else:
+                            regionData['global'][bothValues] = regionData['global'].get(bothValues) + 1
                 verb = ""
                 verbFlag = -1
                 noun = ""
@@ -198,23 +222,16 @@ def searchGroupsGenreLemmasData(descriptionsData, descriptionDocName):
                 prepValues.append(prep.strip())
                 prep = ""
                 prepFlag = -1
-    
-    """
-    for item in finalValues.keys():
-        print("NOUN: " + item)
-        for value in finalValues[item]:
-            print("Values: " + str(value) + " ")
-    """
 
     return finalValues.copy()
 
 
 
-def searchGroupsGenreLemmasDataEnglish(descriptionsData, descriptionDocName):
+def searchGroupsGenreLemmasDataEnglish(globalData, regionData, descriptionDocName):
     """Procesa las características de la descripción de un hotel en Inglés.
     
     Parámetros:
-    descriptionsData -- registro global de características de todos los hoteles
+    globalData -- registro global de características de todos los hoteles
     descriptionDocName -- nombre del archivo de dependencias con la descripción
     
     Resultado:
@@ -254,10 +271,14 @@ def searchGroupsGenreLemmasDataEnglish(descriptionsData, descriptionDocName):
                             if comp not in currentValues:
                                 currentValues.append(comp)
                     adjValuesDic.clear()
-                    if nouns not in descriptionsData['noun'].keys():
-                        descriptionsData['noun'][nouns] = 1
+                    if nouns not in globalData['noun'].keys():
+                        globalData['noun'][nouns] = 1
                     else:
-                        descriptionsData['noun'][nouns] = descriptionsData['noun'].get(nouns) + 1
+                        globalData['noun'][nouns] = globalData['noun'].get(nouns) + 1
+                    if nouns not in regionData['noun'].keys():
+                        regionData['noun'][nouns] = 1
+                    else:
+                        regionData['noun'][nouns] = regionData['noun'].get(nouns) + 1
                     nounValues.clear()
                 nounData = line[line.rfind('(') + 1:line.rfind(')')].split()
                 noun = nounData[1]
@@ -291,10 +312,14 @@ def searchGroupsGenreLemmasDataEnglish(descriptionsData, descriptionDocName):
                         if comp not in currentValues:
                             currentValues.append(comp)
                     finalValues[noun] = currentValues
-                if nouns not in descriptionsData['noun'].keys():
-                    descriptionsData['noun'][nouns] = 1
+                if nouns not in globalData['noun'].keys():
+                    globalData['noun'][nouns] = 1
                 else:
-                    descriptionsData['noun'][nouns] = descriptionsData['noun'].get(nouns) + 1
+                    globalData['noun'][nouns] = globalData['noun'].get(nouns) + 1
+                if nouns not in regionData['noun'].keys():
+                    regionData['noun'][nouns] = 1
+                else:
+                    regionData['noun'][nouns] = regionData['noun'].get(nouns) + 1
                 for noun in nounList:
                     if noun not in finalValues.keys():
                         finalValues[noun] = [comp for comp in adjValuesDic.keys()]
@@ -304,10 +329,14 @@ def searchGroupsGenreLemmasDataEnglish(descriptionsData, descriptionDocName):
                             if comp not in currentValues:
                                 currentValues.append(comp)
                         finalValues[noun] = currentValues
-                    if noun not in descriptionsData['noun'].keys():
-                        descriptionsData['noun'][noun] = 1
+                    if noun not in globalData['noun'].keys():
+                        globalData['noun'][noun] = 1
                     else:
-                        descriptionsData['noun'][noun] = descriptionsData['noun'].get(noun) + 1
+                        globalData['noun'][noun] = globalData['noun'].get(noun) + 1
+                    if noun not in regionData['noun'].keys():
+                        regionData['noun'][noun] = 1
+                    else:
+                        regionData['noun'][noun] = regionData['noun'].get(noun) + 1
                 
                 adjValuesDic.clear()
                 nounValues.clear()
@@ -316,27 +345,31 @@ def searchGroupsGenreLemmasDataEnglish(descriptionsData, descriptionDocName):
                 nounFlag = -1
     
     for key, values in finalValues.items():
-        if key not in descriptionsData['noun'].keys():
-            descriptionsData['noun'][key] = 1
+        if key not in globalData['noun'].keys():
+            globalData['noun'][key] = 1
         else:
-            descriptionsData['noun'][key] = descriptionsData['noun'].get(key) + 1
+            globalData['noun'][key] = globalData['noun'].get(key) + 1
+        if key not in regionData['noun'].keys():
+            regionData['noun'][key] = 1
+        else:
+            regionData['noun'][key] = regionData['noun'].get(key) + 1
         for value in values:
-            if value not in descriptionsData['complement'].keys():
-                descriptionsData['complement'][value] = 1
+            if value not in globalData['complement'].keys():
+                globalData['complement'][value] = 1
             else:
-                descriptionsData['complement'][value] = descriptionsData['complement'].get(value) + 1
+                globalData['complement'][value] = globalData['complement'].get(value) + 1
+            if value not in regionData['complement'].keys():
+                regionData['complement'][value] = 1
+            else:
+                regionData['complement'][value] = regionData['complement'].get(value) + 1
             bundle = key + " " + value
-            if bundle not in descriptionsData['global'].keys():
-                descriptionsData['global'][bundle] = 1
+            if bundle not in globalData['global'].keys():
+                globalData['global'][bundle] = 1
             else:
-                descriptionsData['global'][bundle] = descriptionsData['global'].get(bundle) + 1
-                
-
-    """    
-    for item in finalValues.keys():
-        print("NOUN: " + item)
-        for value in finalValues[item]:
-            print("Values: " + str(value) + " ")
-    """    
+                globalData['global'][bundle] = globalData['global'].get(bundle) + 1
+            if bundle not in regionData['global'].keys():
+                regionData['global'][bundle] = 1
+            else:
+                regionData['global'][bundle] = regionData['global'].get(bundle) + 1  
 
     return finalValues.copy()

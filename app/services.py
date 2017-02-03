@@ -5,17 +5,21 @@ Created on 9 de abr. de 2016
 '''
 
 import re
+import operator
+
+from app import db
+from .models import Hotel
 
 
 
-class Hotel(object):
+class HotelService:
     """Representa un Hotel
     
     Almacena los datos relativos a un hotel, así como los datos extraídos
     después de llevar a cabo el análisis tanto global como por sectores.
     
     """
-    def __init__(self, name, description, address, coords, facilities, languages, reviews):
+    def createHotel(self, name, description, address, coords, facilities, languages, reviews):
         """Constructor de un Hotel
         
         Crea el hotel con la información básica extraida del webscraping.
@@ -34,13 +38,86 @@ class Hotel(object):
           ...]
         
         """
-        self.name = name
-        self.description = description
-        self.address = address
-        self.coords = coords
-        self.facilities = facilities
-        self.languages = languages
-        self.reviews = reviews
+        dbHotel = Hotel.query.get(name)
+        if dbHotel is None:
+            dbHotel = Hotel()
+            dbHotel.name = name
+            dbHotel.description = description
+            dbHotel.address = address
+            dbHotel.facilities = facilities
+            dbHotel.languages = languages
+            dbHotel.reviews = reviews
+            if len(coords) > 0:
+                dbHotel.xGrid = coords[0]
+                dbHotel.yGrid = coords[1]
+            else:
+                dbHotel.region = "No definida"
+            db.session.add(dbHotel)
+            db.session.commit()
+        
+            if dbHotel.region is None:
+                dbConnection = db.engine
+                dbConnection.connect()
+                
+                updateQuery = """UPDATE Hotel SET geom = ST_AsEWKT(ST_Transform(ST_GeomFromText('POINT(%s %s)',4326), 99990)) WHERE name = %s;"""
+                dbConnection.execute(updateQuery, [dbHotel.yGrid, dbHotel.xGrid, dbHotel.name])
+        
+                intersectionQuery = """SELECT a.name FROM Area a, Hotel b WHERE ST_Contains(ST_GeomFromText(a.geom), ST_GeomFromText(b.geom)) AND b.name = %s;"""
+                region = dbConnection.execute(intersectionQuery, dbHotel.name).first()
+                
+                dbHotel.region = str(region[0])
+                db.session.add(dbHotel)
+                db.session.commit()
+    
+        self.name = dbHotel.name
+        self.description = dbHotel.description
+        self.address = dbHotel.address
+        self.facilities = dbHotel.facilities
+        self.languages = dbHotel.languages
+        self.reviews = dbHotel.reviews
+        self.coords = [dbHotel.xGrid, dbHotel.yGrid] if dbHotel.xGrid is not None else []
+        self.region = dbHotel.region
+    
+    
+    
+    def updateInDB(self):
+        """Actualiza el modelo Hotel de la BD.
+        
+        Actualiza un Hotel almacenando los valores obtenidos del análisis del
+        Lenguaje Natural, servicios del hotel y valoración de los clientes.
+        
+        """
+        dbHotel = Hotel.query.get(self.name)
+        dbHotel.valuableInfo = self.valuableInfo
+        dbHotel.positives = self.positives
+        dbHotel.negatives = self.negatives
+        db.session.add(dbHotel)
+        db.session.commit()
+    
+    
+    
+    def fetchFromDB(self, dbHotel):
+        """Extrae un Hotel de la BD.
+        
+        Obtiene los datos de un hotel ya almacenado en la BD.
+        
+        Parámetros:
+        dbHotel -- modelo de Hotel de la BD
+        
+        """
+        self.name = dbHotel.name
+        self.description = dbHotel.description
+        self.address = dbHotel.address
+        self.coords = [dbHotel.xGrid, dbHotel.yGrid]
+        self.facilities = dbHotel.facilities
+        self.languages = dbHotel.languages
+        self.reviews = dbHotel.reviews
+        positives = [positive[1:-1].split(',') for positive in dbHotel.positives]
+        self.positives = [(positive[0], int(positive[1])) for positive in positives]
+        negatives = [negative[1:-1].split(',') for negative in dbHotel.negatives]
+        self.negatives = [(negative[0], int(negative[1])) for negative in negatives]
+        self.valuableInfo = dbHotel.valuableInfo
+        self.region = dbHotel.region
     
     
     
@@ -52,17 +129,6 @@ class Hotel(object):
         
         """ 
         self.valuableInfo = valuableInfo.copy()
-    
-    
-    
-    def setRegion(self, region):
-        """Establece el sector al que pertenece.
-        
-        Parámetros:
-        region -- sector turístico
-        
-        """        
-        self.region = region
 
 
 
@@ -74,8 +140,8 @@ class Hotel(object):
         negativamente, y el número de veces que se mencionan en cada caso.
         
         """
-        self.positives = {}
-        self.negatives = {}
+        positives = {}
+        negatives = {}
         posName = "tmp/" + re.sub('[^0-9a-zA-Z]+', '_', self.name).strip() + '_posReviews-parsed.txt'
         negName = "tmp/" + re.sub('[^0-9a-zA-Z]+', '_', self.name).strip() + '_negReviews-parsed.txt'
         posDoc = open(posName, 'r', encoding='UTF-8')
@@ -86,10 +152,10 @@ class Hotel(object):
                 lemma = line.split()[1]
                 for key in self.valuableInfo.keys():
                     if lemma == key:
-                        if key not in self.positives:
-                            self.positives[key] = 1
+                        if key not in positives:
+                            positives[key] = 1
                         else:
-                            self.positives[key] = self.positives.get(key) + 1
+                            positives[key] = positives.get(key) + 1
         posDoc.close()
         for line in negDoc:
             line = line.strip()
@@ -97,21 +163,31 @@ class Hotel(object):
                 lemma = line.split()[1]
                 for key in self.valuableInfo.keys():
                     if re.search(key, line) and key != "":
-                        if key not in self.negatives:
-                            self.negatives[key] = 1
+                        if key not in negatives:
+                            negatives[key] = 1
                         else:
-                            self.negatives[key] = self.negatives.get(key) + 1
+                            negatives[key] = negatives.get(key) + 1
         negDoc.close()
         
+        self.positives = sorted(positives.items(), key=operator.itemgetter(1), reverse=True)
+        self.negatives = sorted(negatives.items(), key=operator.itemgetter(1), reverse=True)
+        
+        """
         positiveDeletes = []
-        for positiveKey, positiveValue in self.positives.items():
-            if positiveKey in self.negatives.keys():
-                if positiveValue > self.negatives.get(positiveKey):
-                    self.negatives.pop(positiveKey)
-                elif positiveValue < self.negatives.get(positiveKey):
+        for positiveKey, positiveValue in positives.items():
+            if positiveKey in negatives.keys():
+                if positiveValue > negatives.get(positiveKey):
+                    positives[positiveKey] = positiveValue - negatives.get(positiveKey)
+                    negatives.pop(positiveKey)
+                elif positiveValue < negatives.get(positiveKey):
+                    negatives[positiveKey] = negatives.get(positiveKey) - positiveValue
                     positiveDeletes.append(positiveKey)
         for key in positiveDeletes:
-            self.positives.get(key)
+            positives.pop(key)
+        
+        self.positives = sorted(positives.items(), key=operator.itemgetter(1), reverse=True)
+        self.negatives = sorted(negatives.items(), key=operator.itemgetter(1), reverse=True)
+        """
 
 
 
@@ -160,30 +236,30 @@ class Hotel(object):
 
 
 
-    def analyzeCommonsBundle(self, descriptionsData, bundle):
+    def analyzeCommonsBundle(self, globalData, bundle):
         """Determina las características comunes y únicas del hotel.
         
         Extrae qué características de este hotel son comunes y cuáles únicas
         entre todos los hoteles analizados.
         
         Parámetros:
-        descriptionsData -- datos globales de todos los hoteles
+        globalData -- datos globales de todos los hoteles
         bundle -- True si evaluamos nombre+complemento, False si complementos.
         
         """
         self.uniqueInfo = {}
         self.commonInfo = {}
-        nouns = [noun for noun in self.valuableInfo.keys() if (descriptionsData['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
+        nouns = [noun for noun in self.valuableInfo.keys() if (globalData['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
         if not nouns:
             self.uniqueSectorInfo = self.valuableInfo.copy()
         else:
             for noun in nouns:
                 if bundle:
-                    uniqueComplements = [complement for complement in self.valuableInfo.get(noun) if (descriptionsData.get('global').get(noun + " " + complement) == 1)]
-                    commonComplements = [complement for complement in self.valuableInfo.get(noun) if (descriptionsData.get('global').get(noun + " " + complement) > 1)]
+                    uniqueComplements = [complement for complement in self.valuableInfo.get(noun) if (globalData.get('global').get(noun + " " + complement) == 1)]
+                    commonComplements = [complement for complement in self.valuableInfo.get(noun) if (globalData.get('global').get(noun + " " + complement) > 1)]
                 else:
-                    uniqueComplements = [complement for complement in self.valuableInfo.get(noun) if (descriptionsData.get('complement').get(complement) == 1)]
-                    commonComplements = [complement for complement in self.valuableInfo.get(noun) if (descriptionsData.get('complement').get(complement) > 1)]
+                    uniqueComplements = [complement for complement in self.valuableInfo.get(noun) if (globalData.get('complement').get(complement) == 1)]
+                    commonComplements = [complement for complement in self.valuableInfo.get(noun) if (globalData.get('complement').get(complement) > 1)]
                 if uniqueComplements:
                     self.uniqueInfo[noun] = uniqueComplements
                 if commonComplements:
@@ -198,7 +274,7 @@ class Hotel(object):
         entre los hoteles pertenecientes a su mismo sector turístico.
         
         Parámetros:
-        descriptionsData -- datos globales de todos los hoteles
+        sectorData -- datos globales de todos los hoteles por sector.
         bundle -- True si evaluamos nombre+complemento, False si complementos.
         
         """
@@ -219,78 +295,3 @@ class Hotel(object):
                     self.uniqueSectorInfo[noun] = uniqueComplements
                 if commonComplements:
                     self.commonSectorInfo[noun] = commonComplements
-
-
-
-    def showInfo(self, withReviews):
-        """Muestra la información del hotel.
-        
-        Parámetros:
-        withReviews -- True si queremos mostrar también los comentarios.
-        
-        """
-        print("Hotel Name: " + self.name)
-        print("Hotel Description: " + self.description)
-        print("Hotel Address: " + self.address)
-        print("Hotel Coords: " + str(self.coords))
-#        print("Hotel Facilities: " + str(self.facilities))
-        print("Hotel Spoken Languages: " + str(self.languages))
-        print("Hotel Reviews:")
-        if withReviews:
-            for review in self.reviews:
-                print("Review Author: " + review['name'])
-                print("Review Neg: " + review['neg'])
-                print("Review Pos: " + review['pos'])
-
-
-
-    def showValuableInfo(self):
-        """Muestra las características extraídas de la descripción del hotel.
-        
-        """
-        for noun, complements in self.valuableInfo.items():
-            print("Noun: " + noun)
-            print("Values: " + str(complements) + " ")
-
-
-
-    def commonUniqueInfo(self):
-        """Muestra las características comunes y únicas del hotel en global.
-        
-        """
-        print("<<< HOTEL " + self.name + " Services Analysis >>>")
-        print("Unique Hotel Services:")
-        for key, value in self.uniqueInfo.items():
-            print("[" + key + "] => " + str(value))
-        print("Common Hotel Services:")
-        for key, value in self.commonInfo.items():
-            print("[" + key + "] => " + str(value))
-    
-    
-    
-    def commonUniqueSectorInfo(self):
-        """Muestra las características comunes y únicas del hotel en su sector.
-        
-        """
-        print("<<< HOTEL " + self.name + " Services Analysis >>>")
-        print("Unique Hotel Services:")
-        for key, value in self.uniqueSectorInfo.items():
-            print("[" + key + "] => " + str(value))
-        print("Common Hotel Services:")
-        for key, value in self.commonSectorInfo.items():
-            print("[" + key + "] => " + str(value))
-
-
-
-    def reviewsInfo(self):
-        """Muestra los servicios valorados de forma positiva y negativa.
-        
-        """
-        print(" === Positive Services === ")
-        for key, value in self.positives.items():
-            print("[" + key + "] found " + str(value) + " times")
-        print(" === Negative Services === ")
-        for key, value in self.negatives.items():
-            print("[" + key + "] found " + str(value) + " times")
-
-

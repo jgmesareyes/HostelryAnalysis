@@ -1,8 +1,9 @@
 from flask import render_template, flash
-from app import app, hostelryManage
-from .forms import DataForm
+
+from app import app, hostelryManager
 from config import BOOKING_URLS
-from .HostelryManage import HostelryManage
+from .forms import DataForm
+
 
 
 
@@ -44,9 +45,9 @@ def index():
         limit = form.limit.data
         limit = 10000 if limit < 0 else limit
         flash("Limited to: " + str(limit))
-        hostelryManage = HostelryManage(searchUrl, limit)
+        hostelryManager.start(searchUrl, form.executionMode.data, limit)
         return render_template('results.html',
-                               title='Hostelry Analysis Results')
+                               title="Results")
     return render_template('index.html',
                            title='Hostelry Analysis',
                            form=form)
@@ -64,44 +65,15 @@ def results(result=0):
     
     """
     try:
-        hotel = hostelryManage.hotelList[0]
+        hotel = hostelryManager.hotelList[0]
     except:
         hotel = None
     if hotel is None:
         return not_acceptable(406)
-    #hotelList = json.loads(session['hotelList'])[0]
-    """
-    if result in range(1,7):
-        hotelList = hostelryManage.hotelList
-        return render_template('results.html',
-                           title='Hostelry Analysis Results',
-                           hotelList=hotelList,
-                           result=result)
-    if result == 7:
-        globalStats = hostelryManage.globalStats
-        return render_template('results.html',
-                           title='Hostelry Analysis Results',
-                           globalStats=globalStats,
-                           result=result)
-    if result == 8:
-        sectorStats = hostelryManage.sectorStats
-        return render_template('results.html',
-                           title='Hostelry Analysis Results',
-                           sectorStats=sectorStats,
-                           result=result)
-    if result == 9:
-        elapsedTimes = hostelryManage.elapsedTimes
-        return render_template('results.html',
-                           title='Hostelry Analysis Results',
-                           elapsedTimes=elapsedTimes,
-                           result=result)
-    """
     return render_template('results.html',
                            title='Hostelry Analysis Results',
-                           hotelList=hostelryManage.hotelList,
-                           globalStats=hostelryManage.globalStats,
-                           sectorStats=hostelryManage.sectorStats,
-                           elapsedTimes=hostelryManage.elapsedTimes,
+                           hotelList=hostelryManager.hotelList,
+                           globalStats=hostelryManager.globalStats,
+                           sectorStats=hostelryManager.sectorStats,
+                           elapsedTimes=hostelryManager.elapsedTimes,
                            result=result)
-    return render_template('results.html',
-                           title='Hostelry Analysis Results')

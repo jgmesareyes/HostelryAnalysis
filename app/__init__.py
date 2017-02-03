@@ -1,12 +1,16 @@
 import os
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 from config import basedir
-from .HostelryManage import HostelryManage
 
 
-hostelryManage = HostelryManage
 app = Flask(__name__)
 app.config.from_object('config')
+db = SQLAlchemy(app)
 
 
-from app import views
+from app.hostelry_manager import HostelryManager
+hostelryManager = HostelryManager()
+
+from app import views, models

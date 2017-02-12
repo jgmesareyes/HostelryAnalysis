@@ -1,0 +1,16 @@
+<div *ngIf="wordStats">
+  <h2>{{wordStats.sector}} Keyword Statistics</h2>
+  <div *ngFor="let sectorData of wordStats.sectordata">
+    <label>Datatype: </label>{{sectorData.datatype}}
+    <div *ngFor="let data of sectorData.datavalues">
+      <label>{{data.name}}: </label>{{data.values}}%
+    </div>
+  </div>
+</div>
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

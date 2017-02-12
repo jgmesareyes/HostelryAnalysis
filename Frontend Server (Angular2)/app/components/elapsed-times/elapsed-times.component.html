@@ -1,0 +1,33 @@
+<h2>System Elapsed Times</h2>
+<div *ngIf="elapsedTimes">
+  <h2>Analysis elapsed times</h2>
+  <div>
+    <label>Hotels Analysis: </label>{{elapsedTimes.analysis}}
+  </div>
+  <div>
+    <label>Number of Hotels: </label>{{elapsedTimes.hotel_quantity}} hotels
+  </div>
+  <div>
+    <label> - Hotels already registered: </label>{{elapsedTimes.hotel_quantity - elapsedTimes.analyzed_hotels}} hotels
+  </div>
+  <div>
+    <label> - New Hotels analyzed: </label>{{elapsedTimes.analyzed_hotels}} hotels
+  </div>
+  <div>
+    <label> - Average time per Hotel analysis: </label>{{elapsedTimes.average_hotel_time}} seconds
+  </div>
+  <div>
+    <label>Global and Sector statistics: </label>{{elapsedTimes.statistics}} seconds
+  </div>
+  <div>
+    <label>Total time: </label>{{elapsedTimes.total}} seconds
+  </div>
+  <button (click)="goBack()">Back</button>
+</div>
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

@@ -1,0 +1,53 @@
+<div *ngIf="hotel">
+  <h2>{{hotel.name}} details!</h2>
+  <!--<div>
+    <label>Name: </label>{{hotel.name}}
+  </div>-->
+  <div>
+    <label>Name: </label>{{hotel.name}}
+    <!--<input [(ngModel)]="hotel.name" placeholder="name" />-->
+  </div>
+  <div>
+    <label>Description: </label>{{hotel.description}}
+  </div>
+  <div>
+    <label>Address: </label>{{hotel.address}}
+  </div>
+  <div>
+    <label>Region: </label>{{hotel.region}}
+  </div>
+  <div>
+    <label>Coords: </label>{{hotel.coords}}
+  </div>
+  <div>
+    <label>Languages: </label>{{hotel.languages}}
+  </div>
+  <button (click)="showReviews()">Show reviews</button>
+  <button (click)="showFacilities()">Show facilities</button>
+  <button (click)="goBack()">Back</button>
+  <div *ngIf="showOption == 1">
+    <label>Reviews: </label>
+    <ul>
+    <li *ngFor="let review of hotel.reviews">
+      <label>Name: </label>{{review.name}}
+      <label>Pos: </label>{{review.pos}}
+      <label>Neg: </label>{{review.neg}}
+    </li>
+    </ul>
+  </div>
+  <div *ngIf="showOption == 2">
+    <label>Facilities: </label>
+    <ul>
+      <li *ngFor="let facility of hotel.valuableInfo">
+        <label>{{facility.name}}</label>{{facility.complements}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

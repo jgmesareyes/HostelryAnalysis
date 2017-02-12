@@ -1,0 +1,25 @@
+<div *ngIf="featureStats">
+  <h2>{{featureStats.sector}} Feature Statistics</h2>
+  <div *ngFor="let sectorHotel of featureStats.sectorHotels">
+    <label>Hotel: </label>{{sectorHotel.name}}
+    <div>
+      <label>Unique Info</label>
+      <div *ngFor="let unique of sectorHotel.uniqueInfo">
+        <label>{{unique.name}}: </label>{{unique.complements}}
+      </div>
+    </div>
+    <div>
+      <label>Common Info</label>
+      <div *ngFor="let common of sectorHotel.commonInfo">
+        <label>{{common.name}}: </label>{{common.complements}}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

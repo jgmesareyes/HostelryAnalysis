@@ -1,0 +1,28 @@
+<h2>NLP Hostelry Results</h2>
+<!--<div>
+  <label>Hotel sector: </label> <input #hotelSector/>
+</div>-->
+<div>
+  <select [(ngModel)]="sectorStatistics">
+  	<option *ngFor="let stat of statistics" [ngValue]="stat">{{stat.sector}}</option>
+  </select>
+</div>
+<button (click)="changeStatisticsMode()">Change Stats Mode</button>
+<!--<button (click)="changeSectorId()">Change Sector Value</button>
+<button (click)="submitResult()">Submit Result</button>-->
+
+<div *ngIf="sectorStatistics">
+  <div *ngIf="statisticsMode == 1">
+    <keyword-statistics [wordStats]="sectorStatistics"></keyword-statistics>
+  </div>
+  <div *ngIf="statisticsMode == 0">
+    <feature-statistics [featureStats]="sectorStatistics"></feature-statistics>
+  </div>
+</div>
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

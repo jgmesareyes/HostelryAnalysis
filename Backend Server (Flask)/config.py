@@ -3,21 +3,20 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 CSRF_ENABLED = True
-SECRET_KEY = 'a-key'
+SECRET_KEY = 'your_secret_key'
 
 
-
-SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/your-db?user=your-user&password=your-password'
+SQLALCHEMY_DATABASE_URI = 'postgresql://your_host/your_db?user=your_user&password=your_password'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Freeling Settings
 portSPA = 40005
 portENG = 40003
-serverPath = "route-to-freeling-4_0-dir/bin/analyzer.bat"
-clientPath = "route-to-freeling-4_0-dir/bin/analyzer_client localhost:"
-configSetupParsed = " -f route-to-freeling-4_0-dir/data/config/es.cfg --outlv parsed"
-corefSetup = " -C route-to-freeling-4_0-dir/data/es/coref/adaboost/coref.dat"
+serverPath = "route_to_freeling/freeling-4.0/freeling/bin/analyzer.bat"
+clientPath = "route_to_freeling/freeling-4.0/freeling/bin/analyzer_client localhost:"
+configSetupParsed = " -f route_to_freeling/freeling-4.0/freeling/data/config/es.cfg --outlv parsed"
+corefSetup = " -C route_to_freeling/freeling-4.0/freeling/data/es/coref/adaboost/coref.dat"
 
 # Booking.com URLS Matchs
 BOOKING_URLS = {'CI' : {

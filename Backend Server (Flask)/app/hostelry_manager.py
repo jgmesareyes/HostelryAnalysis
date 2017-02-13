@@ -4,6 +4,7 @@ import re
 import geocoder
 import time
 import operator
+import json
 
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
@@ -65,6 +66,14 @@ class HostelryManager:
         self.sectorHotels = {}
         self.analyzedHotels = 0
     
+    def hotelsToJSON(self):
+        hotels=list(self.hotelList.copy())
+        return json.dumps(hotels, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
+    
+    def hotelToJSON(self, hotel):
+        return json.dumps(hotel, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
     
     def start(self, bookingUrl, executionMode, limit):
         """Gestiona el procesado y análisis de hoteles.
@@ -106,6 +115,7 @@ class HostelryManager:
             hotel.analyzeCommonsBundle(self.globalData, True)
             hotel.analyzeSectorCommonsBundle(self.sectorData, True)
             hotel.updateInDB()
+            hotel.parseData()
         self.runStatistics()
         self.runStatisticsSector()
         self.elapsedTimes['statistics'] = "%.4f" % (time.clock() - timeFlag)

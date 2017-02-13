@@ -121,6 +121,31 @@ class HotelService:
     
     
     
+    def parseData(self):
+        valuableInfo = []
+        positives = []
+        negatives = []
+        uniqueInfo = []
+        commonInfo = []
+        uniqueSectorInfo = []
+        commonSectorInfo = []
+        [valuableInfo.append({'name': facility, 'ccomplements': califications}) for facility, califications in self.valuableInfo.items()]
+        [positives.append({'name': positive[0], 'value': int(positive[1])}) for positive in self.positives]
+        [negatives.append({'name': negative[0], 'value': int(negative[1])}) for negative in self.negatives]
+        [uniqueInfo.append({'name': noun, 'complements': comp}) for noun, comp in self.uniqueInfo.items()]
+        [commonInfo.append({'name': noun, 'complements': comp}) for noun, comp in self.commonInfo.items()]
+        [uniqueSectorInfo.append({'name': noun, 'complements': comp}) for noun, comp in self.uniqueSectorInfo.items()]
+        [commonSectorInfo.append({'name': noun, 'complements': comp}) for noun, comp in self.commonSectorInfo.items()]
+        self.valuableInfo = valuableInfo
+        self.positives = positives
+        self.negatives = negatives
+        self.uniqueInfo = uniqueInfo
+        self.commonInfo = commonInfo
+        self.uniqueSectorInfo = uniqueSectorInfo
+        self.commonSectorInfo = commonSectorInfo
+    
+    
+    
     def setValuableInfo(self, valuableInfo):
         """Establece la información extraída del análisis de descripciones.
         

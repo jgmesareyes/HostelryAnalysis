@@ -1,0 +1,32 @@
+<h2>Hostelry Setup</h2>
+<h4>Please enter the required fields for the analysis:</h4>
+<div class="grid grid-pad">
+  <a>
+    <select [(ngModel)]="island">
+  	  <option *ngFor="let island of setupOptions.islands" [ngValue]="island.key">{{island.name}}</option>
+    </select>
+  </a>
+  <a>
+    <select [(ngModel)]="language">
+  	  <option *ngFor="let language of setupOptions.languages" [ngValue]="language.key">{{language.name}}</option>
+    </select>
+  </a>
+  <a>
+    <select [(ngModel)]="mode">
+  	  <option *ngFor="let mode of setupOptions.mode" [ngValue]="mode.key">{{mode.name}}</option>
+    </select>
+  </a>
+  <a>
+  	<label>Hotel limit: </label>
+  	<input [(ngModel)]="limit">
+  </a>
+</div>
+<button (click)="start()">Start analysis</button>
+
+
+
+<!-- 
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+-->

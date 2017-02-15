@@ -1,7 +1,7 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { DashboardComponent }         from './components/dashboard/dashboard.component';
+import { SetupComponent }         from './components/setup/setup.component';
 import { HotelsComponent }            from './components/hotel/hotels.component';
 import { HotelDetailComponent }       from './components/hotel/hotel-detail.component';
 import { ElapsedTimesComponent }      from './components/elapsed-times/elapsed-times.component';
@@ -11,8 +11,8 @@ import { ResultGuard }                from './guards/result.guard';
 
 
 const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard',        component: DashboardComponent },
+  { path: '', redirectTo: '/setup', pathMatch: 'full' },
+  { path: 'setup',            component: SetupComponent },
   { path: 'hotels',           component: HotelsComponent,            canActivate: [ResultGuard] },
   { path: 'hotel/:name',      component: HotelDetailComponent,       canActivate: [ResultGuard] },
   { path: 'times',            component: ElapsedTimesComponent,      canActivate: [ResultGuard] },

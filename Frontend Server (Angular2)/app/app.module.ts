@@ -6,7 +6,7 @@ import { HttpModule }         from '@angular/http';
 import { AppRoutingModule }      from './app-routing.module';
 import { AppComponent }          from './app.component';
 
-import { DashboardComponent }              from './components/dashboard/dashboard.component';
+import { SetupComponent }                  from './components/setup/setup.component';
 import { HotelDetailComponent }            from './components/hotel/hotel-detail.component';
 import { HotelsComponent }                 from './components/hotel/hotels.component';
 import { ElapsedTimesComponent }           from './components/elapsed-times/elapsed-times.component';
@@ -28,7 +28,7 @@ import { ResultGuard }                     from './guards/result.guard';
   ],
   declarations: [
     AppComponent,
-    DashboardComponent,
+    SetupComponent,
     HotelDetailComponent,
     HotelsComponent,
     ElapsedTimesComponent,

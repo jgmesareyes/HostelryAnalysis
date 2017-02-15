@@ -6,9 +6,13 @@ CSRF_ENABLED = True
 SECRET_KEY = 'your_secret_key'
 
 
+# SQLAlchemy Settings
 SQLALCHEMY_DATABASE_URI = 'postgresql://your_host/your_db?user=your_user&password=your_password'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# Threading Settings
+MAX_THREADS = 12
 
 # Freeling Settings
 portSPA = 40005

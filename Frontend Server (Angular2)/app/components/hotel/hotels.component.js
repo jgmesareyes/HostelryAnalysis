@@ -18,8 +18,7 @@ var HotelsComponent = (function () {
     }
     HotelsComponent.prototype.getHotels = function () {
         var _this = this;
-        this.hostelryService
-            .getHotels()
+        this.hostelryService.getHotels()
             .then(function (results) { return _this.hotels = results; });
     };
     /*

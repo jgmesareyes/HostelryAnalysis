@@ -9,6 +9,7 @@ from app import db
 
 class Hotel(db.Model):
     name = db.Column(db.String(128), primary_key=True)
+    lang = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(4096))
     address = db.Column(db.String(128))
     xGrid = db.Column(db.Float())
@@ -34,4 +35,5 @@ class Area(db.Model):
 
 class Hostelry(db.Model):
     region = db.Column(db.String(128), primary_key=True)
+    lang = db.Column(db.String(64), primary_key=True)
     data = db.Column(db.JSON())

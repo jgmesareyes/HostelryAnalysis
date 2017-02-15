@@ -12,17 +12,13 @@ var core_1 = require('@angular/core');
 var http_1 = require('@angular/http');
 require('rxjs/add/operator/toPromise');
 var APP_SERVER = 'http://localhost:5000/';
-var IN_MEMORY_SERVER = 'api/'; //Remember de .data
 var HostelryService = (function () {
     function HostelryService(http) {
         this.http = http;
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json' });
     }
     HostelryService.prototype.getHotels = function () {
-        var options = new http_1.RequestOptions({
-            headers: this.headers
-        });
-        return this.http.get(APP_SERVER + 'hotels', options)
+        return this.http.get(APP_SERVER + 'hotels')
             .toPromise()
             .then(function (response) { return response.json(); })
             .catch(this.handleError);
@@ -62,11 +58,10 @@ var HostelryService = (function () {
             .catch(this.handleError);
     };
     HostelryService.prototype.handleError = function (error) {
-        console.error('An error occurred', error); // for demo purposes only
+        console.error('An error occurred', error); // For demo purposes only
         return Promise.reject(error.message || error);
     };
     HostelryService = __decorate([
-        //Remember de .data
         core_1.Injectable(), 
         __metadata('design:paramtypes', [http_1.Http])
     ], HostelryService);

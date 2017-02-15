@@ -14,7 +14,7 @@ var forms_1 = require('@angular/forms');
 var http_1 = require('@angular/http');
 var app_routing_module_1 = require('./app-routing.module');
 var app_component_1 = require('./app.component');
-var dashboard_component_1 = require('./components/dashboard/dashboard.component');
+var setup_component_1 = require('./components/setup/setup.component');
 var hotel_detail_component_1 = require('./components/hotel/hotel-detail.component');
 var hotels_component_1 = require('./components/hotel/hotels.component');
 var elapsed_times_component_1 = require('./components/elapsed-times/elapsed-times.component');
@@ -38,7 +38,7 @@ var AppModule = (function () {
             ],
             declarations: [
                 app_component_1.AppComponent,
-                dashboard_component_1.DashboardComponent,
+                setup_component_1.SetupComponent,
                 hotel_detail_component_1.HotelDetailComponent,
                 hotels_component_1.HotelsComponent,
                 elapsed_times_component_1.ElapsedTimesComponent,

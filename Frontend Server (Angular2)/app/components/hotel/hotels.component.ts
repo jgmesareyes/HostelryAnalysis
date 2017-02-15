@@ -21,8 +21,7 @@ export class HotelsComponent implements OnInit {
     private router: Router) { }
 
   getHotels(): void {
-    this.hostelryService
-        .getHotels()
+    this.hostelryService.getHotels()
         .then(results => this.hotels = results);
   }
 

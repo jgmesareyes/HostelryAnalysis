@@ -9,7 +9,6 @@ import { Statistics }        from '../../models/statistic/statistics';
 
 
 const APP_SERVER = 'http://localhost:5000/';
-const IN_MEMORY_SERVER = 'api/';  //Remember de .data
 
 @Injectable()
 export class HostelryService {
@@ -19,10 +18,7 @@ export class HostelryService {
   constructor(private http: Http) { }
 
   getHotels(): Promise<Hotel[]> {
-    let options: RequestOptions = new RequestOptions({
-      headers: this.headers
-    });
-    return this.http.get(APP_SERVER + 'hotels', options)
+    return this.http.get(APP_SERVER + 'hotels')
                .toPromise()
                .then(response => response.json() as Hotel[])
                .catch(this.handleError);
@@ -68,7 +64,7 @@ export class HostelryService {
   }
 
   private handleError(error: any): Promise<any> {
-    console.error('An error occurred', error); // for demo purposes only
+    console.error('An error occurred', error); // For demo purposes only
     return Promise.reject(error.message || error);
   }
 }

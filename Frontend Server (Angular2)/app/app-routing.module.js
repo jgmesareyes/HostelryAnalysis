@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var router_1 = require('@angular/router');
-var dashboard_component_1 = require('./components/dashboard/dashboard.component');
+var setup_component_1 = require('./components/setup/setup.component');
 var hotels_component_1 = require('./components/hotel/hotels.component');
 var hotel_detail_component_1 = require('./components/hotel/hotel-detail.component');
 var elapsed_times_component_1 = require('./components/elapsed-times/elapsed-times.component');
@@ -18,8 +18,8 @@ var results_component_1 = require('./components/result/results.component');
 var error_component_1 = require('./components/error/error.component');
 var result_guard_1 = require('./guards/result.guard');
 var routes = [
-    { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: dashboard_component_1.DashboardComponent },
+    { path: '', redirectTo: '/setup', pathMatch: 'full' },
+    { path: 'setup', component: setup_component_1.SetupComponent },
     { path: 'hotels', component: hotels_component_1.HotelsComponent, canActivate: [result_guard_1.ResultGuard] },
     { path: 'hotel/:name', component: hotel_detail_component_1.HotelDetailComponent, canActivate: [result_guard_1.ResultGuard] },
     { path: 'times', component: elapsed_times_component_1.ElapsedTimesComponent, canActivate: [result_guard_1.ResultGuard] },

@@ -19,7 +19,7 @@ class HotelService:
     después de llevar a cabo el análisis tanto global como por sectores.
     
     """
-    def createHotel(self, name, description, address, coords, facilities, languages, reviews):
+    def createHotel(self, name, lang, description, address, coords, facilities, languages, reviews):
         """Constructor de un Hotel
         
         Crea el hotel con la información básica extraida del webscraping.
@@ -38,10 +38,11 @@ class HotelService:
           ...]
         
         """
-        dbHotel = Hotel.query.get(name)
+        dbHotel = Hotel.query.get([name, lang])
         if dbHotel is None:
             dbHotel = Hotel()
             dbHotel.name = name
+            dbHotel.lang = lang
             dbHotel.description = description
             dbHotel.address = address
             dbHotel.facilities = facilities
@@ -65,11 +66,12 @@ class HotelService:
                 intersectionQuery = """SELECT a.name FROM Area a, Hotel b WHERE ST_Contains(ST_GeomFromText(a.geom), ST_GeomFromText(b.geom)) AND b.name = %s;"""
                 region = dbConnection.execute(intersectionQuery, dbHotel.name).first()
                 
-                dbHotel.region = str(region[0])
+                dbHotel.region = str(region[0]) if region else "No definida"
                 db.session.add(dbHotel)
                 db.session.commit()
     
         self.name = dbHotel.name
+        self.lang = dbHotel.lang
         self.description = dbHotel.description
         self.address = dbHotel.address
         self.facilities = dbHotel.facilities
@@ -87,7 +89,7 @@ class HotelService:
         Lenguaje Natural, servicios del hotel y valoración de los clientes.
         
         """
-        dbHotel = Hotel.query.get(self.name)
+        dbHotel = Hotel.query.get([self.name, self.lang])
         dbHotel.valuableInfo = self.valuableInfo
         dbHotel.positives = self.positives
         dbHotel.negatives = self.negatives
@@ -106,6 +108,7 @@ class HotelService:
         
         """
         self.name = dbHotel.name
+        self.lang = dbHotel.lang
         self.description = dbHotel.description
         self.address = dbHotel.address
         self.coords = [dbHotel.xGrid, dbHotel.yGrid]
@@ -220,8 +223,8 @@ class HotelService:
         """Análisis de opiniones. Idioma Inglés.
         
         """
-        self.positives = {}
-        self.negatives = {}
+        positives = {}
+        negatives = {}
         posName = "tmp/" + re.sub('[^0-9a-zA-Z]+', '_', self.name).strip() + '_posReviews-parsed.txt'
         negName = "tmp/" + re.sub('[^0-9a-zA-Z]+', '_', self.name).strip() + '_negReviews-parsed.txt'
         posDoc = open(posName, 'r', encoding='UTF-8')
@@ -232,10 +235,10 @@ class HotelService:
                 lemma = line.split()[1]
                 for key in self.valuableInfo.keys():
                     if lemma == key:
-                        if key not in self.positives:
-                            self.positives[key] = 1
+                        if key not in positives:
+                            positives[key] = 1
                         else:
-                            self.positives[key] = self.positives.get(key) + 1
+                            positives[key] = positives.get(key) + 1
         posDoc.close()
         for line in negDoc:
             line = line.strip()
@@ -243,12 +246,16 @@ class HotelService:
                 lemma = line.split()[1]
                 for key in self.valuableInfo.keys():
                     if re.search(key, line) and key != "":
-                        if key not in self.negatives:
-                            self.negatives[key] = 1
+                        if key not in negatives:
+                            negatives[key] = 1
                         else:
-                            self.negatives[key] = self.negatives.get(key) + 1
+                            negatives[key] = negatives.get(key) + 1
         negDoc.close()
         
+        self.positives = sorted(positives.items(), key=operator.itemgetter(1), reverse=True)
+        self.negatives = sorted(negatives.items(), key=operator.itemgetter(1), reverse=True)
+        
+        """
         positiveDeletes = []
         for positiveKey, positiveValue in self.positives.items():
             if positiveKey in self.negatives.keys():
@@ -258,6 +265,7 @@ class HotelService:
                     positiveDeletes.append(positiveKey)
         for key in positiveDeletes:
             self.positives.get(key)
+        """
 
 
 
@@ -274,7 +282,7 @@ class HotelService:
         """
         self.uniqueInfo = {}
         self.commonInfo = {}
-        nouns = [noun for noun in self.valuableInfo.keys() if (globalData['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
+        nouns = [noun for noun in self.valuableInfo.keys() if (globalData['noun'].get(noun) is not None and globalData['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
         if not nouns:
             self.uniqueSectorInfo = self.valuableInfo.copy()
         else:
@@ -305,7 +313,7 @@ class HotelService:
         """
         self.uniqueSectorInfo = {}
         self.commonSectorInfo = {}
-        nouns = [noun for noun in self.valuableInfo.keys() if (sectorData[self.region]['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
+        nouns = [noun for noun in self.valuableInfo.keys() if (sectorData[self.region]['noun'].get(noun) is not None and sectorData[self.region]['noun'].get(noun) > 1)] #Asimilando que 1 es mayoritariamente un error
         if not nouns:
             self.uniqueSectorInfo = self.valuableInfo.copy()
         else:

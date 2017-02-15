@@ -4,7 +4,6 @@ import re
 import geocoder
 import time
 import operator
-import json
 
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
@@ -12,7 +11,7 @@ from threading import Thread
 from queue import Queue
 
 from app import db, dependency_values
-from config import portENG, portSPA, serverPath, clientPath, configSetupParsed, corefSetup
+from config import portENG, portSPA, serverPath, clientPath, configSetupParsed, corefSetup, BOOKING_URLS, MAX_THREADS
 from config import basedir
 from .models import Hotel, Hostelry
 from .services import HotelService
@@ -33,12 +32,15 @@ class HotelThread(Thread):
 
     def run(self):
         while True:
-            threadName, url, executionMode, spanish = self.queue.get()
+            threadName, url, executionMode = self.queue.get()
             self.name = threadName
             print("[THREAD] - '" + self.getName() + "' : Launched")
-            self.instance.bookingHotelDetails(url, executionMode, spanish)
+            self.instance.bookingHotelDetails(url, executionMode)
             print("[THREAD] - '" + self.getName() + "' : Finished")
             self.queue.task_done()
+            if self.queue.empty():
+                self._tstate_lock = None
+                self._stop()
 
 
 
@@ -65,17 +67,11 @@ class HostelryManager:
         self.sectorStats = {}
         self.sectorHotels = {}
         self.analyzedHotels = 0
+        self.language = ''
     
-    def hotelsToJSON(self):
-        hotels=list(self.hotelList.copy())
-        return json.dumps(hotels, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
     
-    def hotelToJSON(self, hotel):
-        return json.dumps(hotel, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
     
-    def start(self, bookingUrl, executionMode, limit):
+    def start(self, island, language, executionMode, limit):
         """Gestiona el procesado y análisis de hoteles.
         
         Se inicializan los servidores de Freeling según el idioma elegido y
@@ -96,19 +92,19 @@ class HostelryManager:
         
         """
         self.__init__()
+        self.language = language
         if executionMode == 'MERGE':
             self.fetchGlobals()
-        spanish = True
         start = time.clock()
-        if re.search(".en-gb.html", bookingUrl):
-            spanish = False
-            serverEng = subprocess.Popen(serverPath + configSetupParsed.replace('es', 'en') + corefSetup.replace('es', 'en') + " --server --port " + str(portENG))
-            print("[English Analyze Server] Starting with Port Number :: " + str(portENG))
-        else:
+        if language == 'SP':
             serverSpa = subprocess.Popen(serverPath + configSetupParsed + corefSetup + " --server --port " + str(portSPA))
             print("[Spanish Analyze Server] Starting with Port Number :: " + str(portSPA))
+        else:
+            serverEng = subprocess.Popen(serverPath + configSetupParsed.replace('es', 'en') + corefSetup.replace('es', 'en') + " --server --port " + str(portENG))
+            print("[English Analyze Server] Starting with Port Number :: " + str(portENG))
         
-        self.bookingHotelSearch(bookingUrl, executionMode, limit, spanish)
+        bookingUrl = BOOKING_URLS[island][language]
+        self.bookingHotelSearch(bookingUrl, executionMode, limit, language)
         self.elapsedTimes['analysis'] = time.clock() - start
         timeFlag = time.clock()
         for hotel in self.hotelList:
@@ -118,6 +114,8 @@ class HostelryManager:
             hotel.parseData()
         self.runStatistics()
         self.runStatisticsSector()
+        self.setFeatures()
+        self.setKeywords()
         self.elapsedTimes['statistics'] = "%.4f" % (time.clock() - timeFlag)
         timeFlag = time.clock()
         self.elapsedTimes['total'] = "%.4f" % (time.clock() - start)
@@ -129,7 +127,7 @@ class HostelryManager:
         if executionMode == 'MERGE':
             self.setGlobals()
         
-        if spanish:
+        if language == 'SP':
             serverSpa.terminate()
             print("[Spanish Analyze Server] Finished")
         else:
@@ -138,7 +136,7 @@ class HostelryManager:
 
 
 
-    def bookingHotelSearch(self, nextUrl, executionMode="MERGE", limit=10000, spanish=True):
+    def bookingHotelSearch(self, nextUrl, executionMode="MERGE", limit=10000, language='SP'):
         """Obtiene las url de todos los hoteles.
         
         Se lanza un hilo de trabajo por cada hotel, aumentando considerablemente
@@ -152,7 +150,7 @@ class HostelryManager:
         
         """
         queue = Queue()
-        threadLimit = 12
+        threadLimit = min(MAX_THREADS, limit)
         for _ in range(threadLimit):
             hotelThread = HotelThread(queue, self)
             hotelThread.start()
@@ -165,7 +163,7 @@ class HostelryManager:
                 if count < limit:
                     threadName = link.get('href')
                     threadName = threadName[threadName.rfind('/hotel/') + 10:threadName.find('.')]
-                    queue.put((threadName, 'http://www.booking.com' + link.get('href'), executionMode, spanish))
+                    queue.put((threadName, 'http://www.booking.com' + link.get('href'), executionMode))
                 count += 1
             if count < limit:
                 if soup.find('a', {'class' : 'paging-next'}):
@@ -176,7 +174,7 @@ class HostelryManager:
     
     
     
-    def analyzeData(self, hotel, spanish):
+    def analyzeData(self, hotel):
         """Ejecuta los análisis de características y valoraciones.
         
         Parámetros:
@@ -193,7 +191,7 @@ class HostelryManager:
         descriptionDoc.close()
         posDocName = docPath + "_posReviews"
         negDocName = docPath + "_negReviews"
-        if spanish:
+        if self.language == 'SP':
             os.system(clientPath + str(portSPA) + " <" + docPath + ".txt >" + docPath + "-parsed.txt")
             os.system(clientPath + str(portSPA) + " <" + posDocName + ".txt >" + posDocName + "-parsed.txt")
             os.system(clientPath + str(portSPA) + " <" + negDocName + ".txt >" + negDocName + "-parsed.txt")
@@ -214,7 +212,7 @@ class HostelryManager:
     
     
     
-    def bookingHotelDetails(self, url, executionMode, spanish):
+    def bookingHotelDetails(self, url, executionMode):
         """Webscraping de hoteles.
         
         Se extrae y analiza toda la información relativa a cada hotel.
@@ -230,7 +228,7 @@ class HostelryManager:
         hotelLanguages = []
         reviewsUrl = 'http://www.booking.com'
         hotelName = soup.find('span', {'id' : 'hp_hotel_name'}).getText().strip()
-        dbHotel = Hotel.query.filter_by(name=hotelName).first()
+        dbHotel = Hotel.query.get([hotelName, self.language])
         hotel = HotelService()
         if executionMode == "MERGE" and dbHotel is not None:
             hotel.fetchFromDB(dbHotel)
@@ -269,8 +267,8 @@ class HostelryManager:
             reviewsUrl += soup.find('a', {'class' : 'show_all_reviews_btn'}).get('href')
             hotelReviews = self.bookingHotelReviews(reviewsUrl, hotelName)
 
-            hotel.createHotel(hotelName, hotelDescription, hotelAddress, hotelCoords, hotelFacilities, hotelLanguages, hotelReviews)
-            self.analyzeData(hotel, spanish)
+            hotel.createHotel(hotelName, self.language, hotelDescription, hotelAddress, hotelCoords, hotelFacilities, hotelLanguages, hotelReviews)
+            self.analyzeData(hotel)
     
     
     
@@ -433,7 +431,7 @@ class HostelryManager:
         """Recoge los datos generales globales y por sectores de la BD.
         
         """
-        for row in Hostelry.query.all():
+        for row in Hostelry.query.filter_by(lang=self.language):
             if row.region == 'Global':
                 self.globalData = row.data
             else:
@@ -445,17 +443,50 @@ class HostelryManager:
         """Establece los datos generales globales y por sectores en la BD.
         
         """
-        hostelryData = Hostelry.query.get('Global')
+        hostelryData = Hostelry.query.get(['Global', self.language])
         if hostelryData is None:
             hostelryData = Hostelry()
             hostelryData.region = 'Global'
+            hostelryData.lang = self.language
         hostelryData.data = self.globalData.copy()
         db.session.add(hostelryData)
         for sector, sectorData in self.sectorData.items():
-            hostelryData = Hostelry.query.get(sector)
+            hostelryData = Hostelry.query.get([sector, self.language])
             if hostelryData is None:
                 hostelryData = Hostelry()
                 hostelryData.region = sector
+                hostelryData.lang = self.language
             hostelryData.data = sectorData.copy()
             db.session.add(hostelryData)
         db.session.commit()
+
+
+
+    def setFeatures(self):
+        self.features = list();
+        globalHotels = [{'name': hotel.name, 'uniqueInfo': hotel.uniqueInfo, 'commonInfo': hotel.commonInfo} for hotel in self.hotelList]
+        self.features.append({'sector': 'Global', 'sectorHotels': globalHotels})
+        for sector in self.sectorHotels.keys():
+            hotels = list();
+            for hotel in self.hotelList:
+                if sector == hotel.region:
+                    hotels.append({'name': hotel.name, 'uniqueInfo': hotel.uniqueSectorInfo, 'commonInfo': hotel.commonSectorInfo})
+            self.features.append({'sector': sector, 'sectorHotels': hotels})
+    
+    
+    
+    def setKeywords(self):
+        self.keywords = list();
+        datatypeValues = list();
+        for datatype, data in self.globalStats.items():
+            dataValues = list();
+            [dataValues.append({'name': value[0], 'values': value[1]}) for value in data]
+            datatypeValues.append({'datatype': datatype, 'datavalues': dataValues})
+        self.keywords.append({'sector': 'Global', 'sectordata': datatypeValues})
+        for sector, sectorInfo in self.sectorStats.items():
+            datatypeValues = list()
+            for datatype, data in sectorInfo.items():
+                dataValues = list();
+                [dataValues.append({'name': value[0], 'values': value[1]}) for value in data]
+                datatypeValues.append({'datatype': datatype, 'datavalues': dataValues})
+            self.keywords.append({'sector': sector, 'sectordata': datatypeValues})
